@@ -11,6 +11,8 @@ import joblib
 
 def generate_fake_data(num_samples=10000):
     fraud_types = ["No Fraud", "Early Death Claim", "High Sum Assured Ratio", "Age-Based Risk", "Channel-Based Fraud", "Income Mismatch"]
+    product_types = ["Health", "Non Par", "Pension", "Traditional", "ULIP", "Variable"]
+    
     data = []
     for _ in range(num_samples):
         claim_id = f"CLM{random.randint(100000, 999999)}"
@@ -21,6 +23,8 @@ def generate_fake_data(num_samples=10000):
         sum_assured = premium_amount * random.uniform(10, 50)
         income = random.randint(100000, 10000000)
         channel = random.choice(["RetailAgency", "Bancassurance"])
+        product_type = random.choice(product_types)
+        
         early_death_claim = (claim_date - policy_start_date).days <= 180
         high_sum_ratio = (sum_assured / premium_amount > 30)
         age_based_risk = (age in range(20, 35) and sum_assured > 500000)
@@ -39,13 +43,11 @@ def generate_fake_data(num_samples=10000):
         elif income_mismatch:
             fraud_category = "Income Mismatch"
         
-        data.append([claim_id, policy_start_date, claim_date, age, premium_amount, sum_assured, income, channel, fraud_category])
+        data.append([claim_id, policy_start_date, claim_date, age, premium_amount, sum_assured, income, channel, product_type, fraud_category])
     
-    df = pd.DataFrame(data, columns=[
-        "claim_id", "policy_start_date", "claim_date", "age", "premium_amount", "sum_assured", "income", "channel", "fraud_category"
-    ])
-    
+    df = pd.DataFrame(data, columns=["claim_id", "policy_start_date", "claim_date", "age", "premium_amount", "sum_assured", "income", "channel", "product_type", "fraud_category"])
     df.to_csv("insurance_claims.csv", index=False)
     print("Dataset generated and saved as insurance_claims.csv")
+
 
 generate_fake_data()

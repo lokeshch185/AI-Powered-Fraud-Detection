@@ -19,6 +19,9 @@ def train_model():
     le_channel = LabelEncoder()
     df["channel"] = le_channel.fit_transform(df["channel"])
     
+    le_product = LabelEncoder()
+    df["product_type"] = le_product.fit_transform(df["product_type"])
+    
     le_fraud = LabelEncoder()
     df["fraud_category"] = le_fraud.fit_transform(df["fraud_category"])
     
@@ -41,7 +44,8 @@ def train_model():
     joblib.dump(model, "fraud_model.pkl")
     joblib.dump(scaler, "scaler.pkl")
     joblib.dump(le_channel, "label_encoder_channel.pkl")
+    joblib.dump(le_product, "label_encoder_product.pkl")
     joblib.dump(le_fraud, "label_encoder_fraud.pkl")
     print("Model trained and saved successfully!")
-    
+
 train_model()

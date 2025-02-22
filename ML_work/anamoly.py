@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -6,16 +7,22 @@ from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
 
-# Function to detect anomalies and visualize clusters
 def detect_anomalies():
-    # Load dataset
     df = pd.read_csv("insurance_claims.csv")
     df.drop(columns=["claim_id", "policy_start_date", "claim_date", "fraud_category"], errors="ignore", inplace=True)
 
-    # Encoding categorical variable
+    # Create output folder
+    output_folder = "fraud_analysis_charts"
+    os.makedirs(output_folder, exist_ok=True)
+
+    # Encoding categorical variables
     le_channel = LabelEncoder()
+    le_product = LabelEncoder()
+    
     if "channel" in df.columns:
         df["channel"] = le_channel.fit_transform(df["channel"])
+    if "product_type" in df.columns:
+        df["product_type"] = le_product.fit_transform(df["product_type"])
 
     # Standardize numeric data
     numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
@@ -25,11 +32,10 @@ def detect_anomalies():
     # K-Means Clustering
     kmeans = KMeans(n_clusters=6, random_state=42, n_init=10)
     clusters = kmeans.fit_predict(df_scaled)
-
     df["cluster"] = clusters
 
     # Save clusters
-    df.to_csv("fraud_clusters.csv", index=False)
+    df.to_csv(os.path.join(output_folder, "fraud_clusters.csv"), index=False)
     print("✅ Anomaly detection completed. Clusters saved as fraud_clusters.csv")
 
     # PCA for 2D Visualization
@@ -45,22 +51,20 @@ def detect_anomalies():
     plt.xlabel("Principal Component 1")
     plt.ylabel("Principal Component 2")
     plt.legend(title="Cluster")
-    plt.savefig("fraud_clusters_pca.png")
-    print("📊 PCA Scatter Plot Saved as fraud_clusters_pca.png")
+    plt.savefig(os.path.join(output_folder, "fraud_clusters_pca.svg"), format="svg")
     plt.show()
 
-    # 📌 2. Cluster Size Distribution (Fix Seaborn Warning)
+    # 📌 2. Cluster Size Distribution
     plt.figure(figsize=(8, 5))
     sns.countplot(x="cluster", data=df, palette="coolwarm")
     plt.title("Cluster Size Distribution")
     plt.xlabel("Cluster")
     plt.ylabel("Number of Data Points")
-    plt.savefig("cluster_distribution.png")
-    print("📊 Cluster Size Distribution Saved as cluster_distribution.png")
+    plt.savefig(os.path.join(output_folder, "cluster_distribution.svg"), format="svg")
     plt.show()
 
-    # 📌 3. Feature Distributions by Cluster (Only Use Available Numeric Features)
-    available_features = [feature for feature in ["amount_claimed", "age", "premium_amount"] if feature in df.columns]
+    # 📌 3. Feature Distributions by Cluster
+    available_features = [feature for feature in ["age", "premium_amount", "sum_assured", "income"] if feature in df.columns]
     if available_features:
         for feature in available_features:
             plt.figure(figsize=(8, 5))
@@ -68,18 +72,41 @@ def detect_anomalies():
             plt.title(f"Distribution of {feature} Across Clusters")
             plt.xlabel("Cluster")
             plt.ylabel(feature)
-            plt.savefig(f"{feature}_distribution.png")
-            print(f"📊 {feature} Distribution Saved as {feature}_distribution.png")
+            plt.savefig(os.path.join(output_folder, f"{feature}_distribution.svg"), format="svg")
             plt.show()
     else:
         print("⚠ No valid numeric columns found for feature distribution plots.")
 
-    # # 📌 4. Pairplot for Cluster Relationships
-    # pairplot_features = ["pca1", "pca2"] + available_features + ["cluster"]
-    # sns.pairplot(df[pairplot_features], hue="cluster", palette="tab10")
-    # plt.savefig("pairplot_clusters.png")
-    # print("📊 Pairplot Saved as pairplot_clusters.png")
-    # plt.show()
+    # 📌 4. Correlation Heatmap
+    plt.figure(figsize=(10, 8))
+    sns.heatmap(df.corr(), annot=True, cmap="coolwarm", fmt=".2f")
+    plt.title("Feature Correlation Heatmap")
+    plt.savefig(os.path.join(output_folder, "correlation_heatmap.svg"), format="svg")
+    plt.show()
+
+    # 📌 5. Pairplot for Cluster Relationships
+    pairplot_features = ["pca1", "pca2"] + available_features + ["cluster"]
+    sns.pairplot(df[pairplot_features], hue="cluster", palette="tab10")
+    plt.savefig(os.path.join(output_folder, "pairplot_clusters.svg"), format="svg")
+    plt.show()
+
+    # 📌 6. Violin Plot for Claim Amount Distribution by Cluster
+    plt.figure(figsize=(8, 5))
+    sns.violinplot(x=df["cluster"], y=df["sum_assured"], palette="muted")
+    plt.title("Claim Amount Distribution by Cluster")
+    plt.xlabel("Cluster")
+    plt.ylabel("Sum Assured")
+    plt.savefig(os.path.join(output_folder, "claim_amount_violin.svg"), format="svg")
+    plt.show()
+
+    # 📌 7. Histogram of Premium Amount Distribution
+    plt.figure(figsize=(8, 5))
+    sns.histplot(df["premium_amount"], bins=30, kde=True, color="blue")
+    plt.title("Premium Amount Distribution")
+    plt.xlabel("Premium Amount")
+    plt.ylabel("Frequency")
+    plt.savefig(os.path.join(output_folder, "premium_distribution.svg"), format="svg")
+    plt.show()
 
 # Run function
 detect_anomalies()
