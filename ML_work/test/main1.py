@@ -6,10 +6,10 @@ import joblib
 app = Flask(__name__)
 
 # Load models and preprocessing tools
-xgb_model = joblib.load("C:/Users/smsha/Desktop/model/test/xgb_model.pkl")
-catboost_model = joblib.load("C:/Users/smsha/Desktop/model/test/catboost_model.pkl")
-feature_names = joblib.load("C:/Users/smsha/Desktop/model/test/feature_names.pkl")
-scaler = joblib.load("C:/Users/smsha/Desktop/model/test/scaler.pkl")
+xgb_model = joblib.load("./xgb_model.pkl")
+catboost_model = joblib.load("./catboost_model.pkl")
+feature_names = joblib.load("./feature_names.pkl")
+scaler = joblib.load("./scaler.pkl")
 
 # Required columns
 important_columns = [
