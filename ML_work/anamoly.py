@@ -84,12 +84,6 @@ def detect_anomalies():
     plt.savefig(os.path.join(output_folder, "correlation_heatmap.svg"), format="svg")
     plt.show()
 
-    # 📌 5. Pairplot for Cluster Relationships
-    pairplot_features = ["pca1", "pca2"] + available_features + ["cluster"]
-    sns.pairplot(df[pairplot_features], hue="cluster", palette="tab10")
-    plt.savefig(os.path.join(output_folder, "pairplot_clusters.svg"), format="svg")
-    plt.show()
-
     # 📌 6. Violin Plot for Claim Amount Distribution by Cluster
     plt.figure(figsize=(8, 5))
     sns.violinplot(x=df["cluster"], y=df["sum_assured"], palette="muted")
