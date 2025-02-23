@@ -13,27 +13,31 @@ import SystemSettingsPage from './pages/SystemSettingsPage'
 import LoginPage from './pages/LoginPage'
 import SignupPage from './pages/SignupPage'
 import DocumentVerificationPage from './pages/DocumentVerificationPage'
+import { Toaster } from 'react-hot-toast'
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Landing />} />
-        <Route path="/dashboard" element={<UserDashboard />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/signup" element={<SignupPage />} />
-        <Route path="/claims" element={<Claims />} />
-        <Route path="/admin/dashboard" element={<AdminDashboard />} />
-        <Route path="/file-claim" element={<FileClaim />} />
-        <Route path="/claims-history" element={<ClaimsHistory />} />
-        <Route path="/support" element={<SupportPage />} />
-        <Route path="/admin/claims" element={<ClaimsManagement />} />
-        <Route path="/admin/fraud-insights" element={<FraudInsights />} />
-        <Route path="/admin/user-management" element={<UserManagement />} />
-        <Route path="/admin/system-settings" element={<SystemSettingsPage />} />
-        <Route path="/admin/document-verification" element={<DocumentVerificationPage />} />
-      </Routes>
-    </BrowserRouter>
+    <>
+      <Toaster position="top-right" />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Landing />} />
+          <Route path="/dashboard" element={<UserDashboard />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignupPage />} />
+          <Route path="/claims" element={<Claims />} />
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/file-claim" element={<FileClaim />} />
+          <Route path="/claims-history" element={<ClaimsHistory />} />
+          <Route path="/support" element={<SupportPage />} />
+          <Route path="/admin/claims" element={<ClaimsManagement />} />
+          <Route path="/admin/fraud-insights" element={<FraudInsights />} />
+          <Route path="/admin/user-management" element={<UserManagement />} />
+          <Route path="/admin/system-settings" element={<SystemSettingsPage />} />
+          <Route path="/admin/document-verification" element={<DocumentVerificationPage />} />
+        </Routes>
+      </BrowserRouter>
+    </>
   )
 }
 
