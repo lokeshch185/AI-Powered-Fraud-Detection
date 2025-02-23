@@ -1,158 +1,188 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { 
-  FiAlertTriangle, FiSearch, FiCalendar, FiDownload, 
-  FiBell, FiMap, FiBarChart2, FiTrendingUp 
-} from 'react-icons/fi';
+import axios from 'axios';
+import { toast } from 'react-hot-toast';
+import Sidebar from '../components/admin/layouts/Sidebar';
+import { FiUpload, FiRefreshCw, FiBarChart2, FiPieChart, FiTrendingUp } from 'react-icons/fi';
 
-// Import components we'll create next
-import FraudHeatmap from '../components/FraudHeatmap';
-import FraudTrendsChart from '../components/FraudTrendsChart';
-import FraudIndicatorsChart from '../components/FraudIndicatorsChart';
-import HighRiskClaimsTable from '../components/HighRiskClaimsTable';
-import FraudDetailsModal from '../components/FraudDetailsModal';
+export default function FraudAnalyticsPage() {
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [analytics, setAnalytics] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
 
-export default function FraudDetectionPage() {
-  const [dateRange, setDateRange] = useState({ start: null, end: null });
-  const [selectedCase, setSelectedCase] = useState(null);
-  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  useEffect(() => {
+    fetchAnalytics();
+  }, []);
 
-  // Mock summary data
-  const summaryData = {
-    totalFraudCases: 156,
-    highRiskClaims: 42,
-    potentialSavings: '₹2.5 Cr',
-    activeInvestigations: 28
+  const fetchAnalytics = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get('http://127.0.0.1:5001/api/fraud-analytics');
+      setAnalytics(response.data);
+    } catch (error) {
+      toast.error('Failed to fetch analytics: ' + error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleFileUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    if (!file.name.endsWith('.csv')) {
+      toast.error('Please upload a CSV file');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      setUploading(true);
+      await axios.post('http://127.0.0.1:5001/api/fraud-analytics', formData);
+      toast.success('CSV uploaded successfully');
+      fetchAnalytics(); // Refresh analytics after upload
+    } catch (error) {
+      toast.error('Upload failed: ' + error.message);
+    } finally {
+      setUploading(false);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <h1 className="text-2xl font-bold text-gray-800">
-              Fraud Detection Insights
-            </h1>
-            
-            <div className="flex flex-wrap gap-4">
-              {/* Search */}
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Search cases..."
-                  className="w-full md:w-64 pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500"
-                />
-                <FiSearch className="absolute left-3 top-3 text-gray-400" />
+    <div className="flex h-screen bg-gradient-to-br from-slate-50 to-white overflow-hidden">
+      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+
+      <div className="flex-1 p-8 overflow-y-auto">
+        <div className="max-w-7xl mx-auto">
+          {/* Header Section */}
+          <header className="mb-8">
+            <div className="flex justify-between items-center mb-4">
+              <div>
+                <h1 className="text-3xl font-bold text-gray-800">Fraud Analytics Dashboard</h1>
+                <p className="text-gray-600">Comprehensive analysis of insurance claims</p>
               </div>
-
-              {/* Date Range Picker */}
-              <button className="flex items-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
-                <FiCalendar className="mr-2" />
-                Select Date Range
-              </button>
-
-              {/* Export Button */}
-              <button className="flex items-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
-                <FiDownload className="mr-2" />
-                Export Report
-              </button>
+              <div className="flex gap-4">
+                <label className="relative inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                  <FiUpload className="mr-2" />
+                  <span className="text-sm font-medium">Upload CSV</span>
+                  <input
+                    type="file"
+                    className="hidden"
+                    accept=".csv"
+                    onChange={handleFileUpload}
+                    disabled={uploading}
+                  />
+                </label>
+                <button
+                  onClick={fetchAnalytics}
+                  disabled={loading}
+                  className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  <FiRefreshCw className={`mr-2 ${loading ? 'animate-spin' : ''}`} />
+                  <span className="text-sm font-medium">Refresh</span>
+                </button>
+              </div>
             </div>
-          </div>
-        </div>
-      </header>
+          </header>
 
-      {/* Main Content */}
-      <main className="container mx-auto px-6 py-8">
-        {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {[
-            {
-              title: 'Total Fraud Cases',
-              value: summaryData.totalFraudCases,
-              icon: <FiAlertTriangle className="text-red-500" />,
-              trend: '+12%'
-            },
-            {
-              title: 'High Risk Claims',
-              value: summaryData.highRiskClaims,
-              icon: <FiBarChart2 className="text-orange-500" />,
-              trend: '-5%'
-            },
-            {
-              title: 'Potential Savings',
-              value: summaryData.potentialSavings,
-              icon: <FiTrendingUp className="text-green-500" />,
-              trend: '+18%'
-            },
-            {
-              title: 'Active Investigations',
-              value: summaryData.activeInvestigations,
-              icon: <FiMap className="text-blue-500" />,
-              trend: '+3%'
-            }
-          ].map((card, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-              className="bg-white rounded-xl shadow-sm p-6"
-            >
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-2 bg-gray-50 rounded-lg">
-                  {card.icon}
+          {/* Summary Cards */}
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="bg-white p-6 rounded-xl shadow-sm animate-pulse">
+                  <div className="h-4 bg-gray-200 rounded w-1/2 mb-4"></div>
+                  <div className="h-8 bg-gray-200 rounded"></div>
                 </div>
-                <span className={`text-sm ${
-                  card.trend.startsWith('+') ? 'text-green-600' : 'text-red-600'
-                }`}>
-                  {card.trend}
-                </span>
-              </div>
-              <h3 className="text-gray-600 text-sm">{card.title}</h3>
-              <p className="text-2xl font-bold mt-2">{card.value}</p>
-            </motion.div>
-          ))}
+              ))}
+            </div>
+          ) : analytics && (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              <SummaryCard
+                icon={<FiBarChart2 className="w-6 h-6" />}
+                title="Total Claims"
+                value={analytics.summary.total_claims}
+                color="blue"
+              />
+              <SummaryCard
+                icon={<FiPieChart className="w-6 h-6" />}
+                title="Average Premium"
+                value={`$${analytics.summary.avg_premium.toFixed(2)}`}
+                color="green"
+              />
+              <SummaryCard
+                icon={<FiTrendingUp className="w-6 h-6" />}
+                title="Recent Claims"
+                value={analytics.summary.recent_claims}
+                color="purple"
+              />
+            </div>
+          )}
+
+          {/* Charts Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {loading ? (
+              // Skeleton loaders for charts
+              Array(6).fill(null).map((_, i) => (
+                <div key={i} className="bg-white p-6 rounded-xl shadow-sm">
+                  <div className="h-4 bg-gray-200 rounded w-1/3 mb-4"></div>
+                  <div className="h-64 bg-gray-200 rounded animate-pulse"></div>
+                </div>
+              ))
+            ) : analytics && (
+              <>
+                <ChartCard
+                  title="Cluster Analysis"
+                  plot={analytics.plots.cluster_scatter}
+                />
+                <ChartCard
+                  title="Distribution Analysis"
+                  plot={analytics.plots.cluster_distribution}
+                />
+                <ChartCard
+                  title="Correlation Analysis"
+                  plot={analytics.plots.correlation_heatmap}
+                />
+                {Object.entries(analytics.plots.feature_distributions).map(([feature, plot]) => (
+                  <ChartCard
+                    key={feature}
+                    title={`${feature.replace('_', ' ').charAt(0).toUpperCase() + feature.slice(1)} Distribution`}
+                    plot={plot}
+                  />
+                ))}
+              </>
+            )}
+          </div>
         </div>
-
-        {/* Fraud Insights Dashboard */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <h2 className="text-lg font-semibold mb-4">Fraud Risk Heatmap</h2>
-            <FraudHeatmap />
-          </div>
-
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <h2 className="text-lg font-semibold mb-4">Fraud Trend Analysis</h2>
-            <FraudTrendsChart />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 gap-6">
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <h2 className="text-lg font-semibold mb-4">Top Fraud Indicators</h2>
-            <FraudIndicatorsChart />
-          </div>
-
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <h2 className="text-lg font-semibold mb-4">High Risk Claims</h2>
-            <HighRiskClaimsTable 
-              onViewDetails={(claim) => {
-                setSelectedCase(claim);
-                setShowDetailsModal(true);
-              }}
-            />
-          </div>
-        </div>
-      </main>
-
-      {/* Fraud Details Modal */}
-      {showDetailsModal && selectedCase && (
-        <FraudDetailsModal
-          fraudCase={selectedCase}
-          onClose={() => setShowDetailsModal(false)}
-        />
-      )}
+      </div>
     </div>
   );
 }
+
+const SummaryCard = ({ icon, title, value, color }) => (
+  <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+    <div className="flex items-center justify-between">
+      <div>
+        <p className="text-sm text-gray-600 mb-1">{title}</p>
+        <p className={`text-2xl font-bold text-${color}-600`}>{value}</p>
+      </div>
+      <div className={`p-3 bg-${color}-50 rounded-lg text-${color}-500`}>
+        {icon}
+      </div>
+    </div>
+  </div>
+);
+
+const ChartCard = ({ title, plot }) => (
+  <div className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+    <h2 className="text-xl font-semibold mb-4 text-gray-800">{title}</h2>
+    <div className="relative aspect-[4/3]">
+      <img 
+        src={`data:image/svg+xml;base64,${plot}`}
+        alt={title}
+        className="w-full h-full object-contain"
+      />
+    </div>
+  </div>
+);

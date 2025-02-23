@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import { validateEmail, validatePassword } from '../utils/validation.js';
 
 const signup = async (req, res) => {
-  const { name, email, password, role = 'admin' } = req.body;
+  const { name, email, password, role = 'user' } = req.body;
 
   try {
     // Input validation

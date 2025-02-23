@@ -2,13 +2,15 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   FiSearch, FiFilter, FiDownload, FiEye, FiUpload, 
-  FiMessageSquare, FiX, FiChevronDown, FiCalendar 
+  FiMessageSquare, FiX, FiChevronDown, FiCalendar, FiMenu 
 } from 'react-icons/fi';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
 } from 'recharts';
+import Sidebar from '../components/Sidebar';
 
 export default function ClaimsHistory() {
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [selectedClaim, setSelectedClaim] = useState(null);
   const [showFilters, setShowFilters] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -33,20 +35,46 @@ export default function ClaimsHistory() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <h1 className="text-2xl font-bold text-gray-800">Claims History</h1>
+    <div className="min-h-screen bg-gray-50 flex">
+      {/* Sidebar */}
+      <Sidebar sidebarOpen={sidebarOpen} />
+
+      {/* Main Content */}
+      <main className="flex-1 min-w-0 overflow-auto">
+        {/* Header */}
+        <header className="bg-white shadow-sm">
+          <div className="flex items-center justify-between p-4">
+            <div className="flex items-center space-x-4">
+              <button 
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+                className="md:hidden text-gray-600"
+              >
+                {sidebarOpen ? <FiX size={24} /> : <FiMenu size={24} />}
+              </button>
+              <div>
+                <h1 className="text-xl font-semibold">Claims History</h1>
+                <p className="text-sm text-gray-600">View and manage your claims</p>
+              </div>
+            </div>
             
-            <div className="flex flex-wrap gap-4">
+            <div className="flex items-center space-x-4">
+              <img 
+                src="/avatar.png" 
+                alt="Profile" 
+                className="w-10 h-10 rounded-full"
+              />
+            </div>
+          </div>
+
+          {/* Search and Filters Bar */}
+          <div className="border-t border-gray-200 p-4">
+            <div className="flex flex-wrap gap-4 items-center">
               {/* Search Bar */}
-              <div className="relative">
+              <div className="relative flex-1 max-w-md">
                 <input
                   type="text"
                   placeholder="Search claims..."
-                  className="w-full md:w-64 pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
                 <FiSearch className="absolute left-3 top-3 text-gray-400" />
               </div>
@@ -67,189 +95,189 @@ export default function ClaimsHistory() {
               </button>
             </div>
           </div>
-        </div>
-      </header>
+        </header>
 
-      {/* Main Content */}
-      <main className="container mx-auto px-6 py-8">
-        {/* Filters Panel */}
-        <AnimatePresence>
-          {showFilters && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              className="bg-white rounded-lg shadow-sm mb-6 overflow-hidden"
-            >
-              <div className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {/* Status Filter */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Status
-                    </label>
-                    <select className="w-full rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500">
-                      <option>All Statuses</option>
-                      <option>In Progress</option>
-                      <option>Approved</option>
-                      <option>Rejected</option>
-                    </select>
-                  </div>
+        {/* Main Content Area */}
+        <div className="p-6">
+          {/* Filters Panel */}
+          <AnimatePresence>
+            {showFilters && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className="bg-white rounded-lg shadow-sm mb-6 overflow-hidden"
+              >
+                <div className="p-6">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {/* Status Filter */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Status
+                      </label>
+                      <select className="w-full rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500">
+                        <option>All Statuses</option>
+                        <option>In Progress</option>
+                        <option>Approved</option>
+                        <option>Rejected</option>
+                      </select>
+                    </div>
 
-                  {/* Date Range */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Date Range
-                    </label>
-                    <div className="relative">
-                      <input
-                        type="date"
-                        className="w-full rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500"
-                      />
-                      <FiCalendar className="absolute right-3 top-3 text-gray-400" />
+                    {/* Date Range */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Date Range
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="date"
+                          className="w-full rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                        />
+                        <FiCalendar className="absolute right-3 top-3 text-gray-400" />
+                      </div>
+                    </div>
+
+                    {/* Policy Type */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Policy Type
+                      </label>
+                      <select className="w-full rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500">
+                        <option>All Types</option>
+                        <option>Health Insurance</option>
+                        <option>Vehicle Insurance</option>
+                        <option>Life Insurance</option>
+                      </select>
                     </div>
                   </div>
-
-                  {/* Policy Type */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Policy Type
-                    </label>
-                    <select className="w-full rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500">
-                      <option>All Types</option>
-                      <option>Health Insurance</option>
-                      <option>Vehicle Insurance</option>
-                      <option>Life Insurance</option>
-                    </select>
-                  </div>
                 </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-        {/* Claims Table */}
-        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Claim ID
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Policy Type
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Amount
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Date Filed
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Risk Score
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {mockClaims.map((claim) => (
-                  <tr key={claim.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <button
-                        onClick={() => setSelectedClaim(claim)}
-                        className="text-blue-600 hover:text-blue-800"
-                      >
-                        {claim.id}
-                      </button>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {claim.policyType}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      ₹{claim.amount.toLocaleString()}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {new Date(claim.dateFiled).toLocaleDateString()}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full
-                        ${claim.status === 'Approved' ? 'bg-green-100 text-green-800' :
-                          claim.status === 'In Progress' ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-red-100 text-red-800'}`}>
-                        {claim.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full
-                        ${claim.riskScore === 'Low' ? 'bg-green-100 text-green-800' :
-                          claim.riskScore === 'Medium' ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-red-100 text-red-800'}`}>
-                        {claim.riskScore}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex space-x-2">
+          {/* Claims Table */}
+          <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Claim ID
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Policy Type
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Amount
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Date Filed
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Risk Score
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {mockClaims.map((claim) => (
+                    <tr key={claim.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap">
                         <button
                           onClick={() => setSelectedClaim(claim)}
                           className="text-blue-600 hover:text-blue-800"
                         >
-                          <FiEye />
+                          {claim.id}
                         </button>
-                        <button className="text-blue-600 hover:text-blue-800">
-                          <FiUpload />
-                        </button>
-                        <button className="text-blue-600 hover:text-blue-800">
-                          <FiMessageSquare />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {claim.policyType}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        ₹{claim.amount.toLocaleString()}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {new Date(claim.dateFiled).toLocaleDateString()}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full
+                          ${claim.status === 'Approved' ? 'bg-green-100 text-green-800' :
+                            claim.status === 'In Progress' ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-red-100 text-red-800'}`}>
+                          {claim.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full
+                          ${claim.riskScore === 'Low' ? 'bg-green-100 text-green-800' :
+                            claim.riskScore === 'Medium' ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-red-100 text-red-800'}`}>
+                          {claim.riskScore}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex space-x-2">
+                          <button
+                            onClick={() => setSelectedClaim(claim)}
+                            className="text-blue-600 hover:text-blue-800"
+                          >
+                            <FiEye />
+                          </button>
+                          <button className="text-blue-600 hover:text-blue-800">
+                            <FiUpload />
+                          </button>
+                          <button className="text-blue-600 hover:text-blue-800">
+                            <FiMessageSquare />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
 
-          {/* Pagination */}
-          <div className="bg-white px-6 py-4 border-t border-gray-200">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <span className="text-sm text-gray-700">
-                  Showing
-                  <select
-                    value={itemsPerPage}
-                    onChange={(e) => setItemsPerPage(Number(e.target.value))}
-                    className="mx-1 rounded-md border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+            {/* Pagination */}
+            <div className="bg-white px-6 py-4 border-t border-gray-200">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <span className="text-sm text-gray-700">
+                    Showing
+                    <select
+                      value={itemsPerPage}
+                      onChange={(e) => setItemsPerPage(Number(e.target.value))}
+                      className="mx-1 rounded-md border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                    >
+                      <option value={10}>10</option>
+                      <option value={20}>20</option>
+                      <option value={50}>50</option>
+                    </select>
+                    entries
+                  </span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => setCurrentPage(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className="px-3 py-1 rounded-md border border-gray-300 text-sm disabled:opacity-50"
                   >
-                    <option value={10}>10</option>
-                    <option value={20}>20</option>
-                    <option value={50}>50</option>
-                  </select>
-                  entries
-                </span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <button
-                  onClick={() => setCurrentPage(currentPage - 1)}
-                  disabled={currentPage === 1}
-                  className="px-3 py-1 rounded-md border border-gray-300 text-sm disabled:opacity-50"
-                >
-                  Previous
-                </button>
-                <span className="px-3 py-1 text-sm">
-                  Page {currentPage}
-                </span>
-                <button
-                  onClick={() => setCurrentPage(currentPage + 1)}
-                  className="px-3 py-1 rounded-md border border-gray-300 text-sm"
-                >
-                  Next
-                </button>
+                    Previous
+                  </button>
+                  <span className="px-3 py-1 text-sm">
+                    Page {currentPage}
+                  </span>
+                  <button
+                    onClick={() => setCurrentPage(currentPage + 1)}
+                    className="px-3 py-1 rounded-md border border-gray-300 text-sm"
+                  >
+                    Next
+                  </button>
+                </div>
               </div>
             </div>
           </div>

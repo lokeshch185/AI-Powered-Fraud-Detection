@@ -18,11 +18,22 @@ export default function UserTable({
   // Mock data - Replace with API data
   const users = [
     {
-      id: 'USR001',
-      name: 'Rajesh Kumar',
-      email: 'rajesh.kumar@example.com',
-      role: 'Policyholder',
+      id: 'SBI001',
+      name: 'lokesh',
+      email: 'lokesh@sbi.co.in', 
+      role: 'Admin',
       status: 'Active',
+      lastActive: '2024-02-20T10:30:00',
+      region: 'Mumbai Region',
+      policies: ['POL-001', 'POL-002'],
+      phone: '+91 98765 43210'
+    },
+    {
+      id: 'SBI002',
+      name: 'Rajesh Kumar',
+      email: 'rajesh.kumar@sbi.co.in',
+      role: 'Manager',
+      status: 'Pending',
       lastActive: '2024-02-20T10:30:00',
       region: 'North',
       policies: ['POL-001', 'POL-002'],

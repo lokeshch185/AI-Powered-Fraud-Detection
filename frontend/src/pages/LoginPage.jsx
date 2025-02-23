@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FiUser, FiLock, FiEye, FiEyeOff, FiAlertCircle } from 'react-icons/fi';
+import { FiUser, FiLock, FiEye, FiEyeOff, FiAlertCircle, FiHome } from 'react-icons/fi';
 import sbiLogo from '../assets/sbi-logo.png';
 import axios from 'axios';
 
@@ -101,8 +101,18 @@ export default function LoginPage() {
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex flex-col justify-center">
       {/* Header */}
       <div className="fixed top-0 left-0 right-0 bg-white shadow-sm">
-        <div className="container mx-auto px-6 py-4">
-          <img src={sbiLogo} alt="SBI Logo" className="h-8" />
+        <div className="container mx-auto px-6 py-4 flex justify-between items-center">
+        <div className="flex items-center">
+              <img src={sbiLogo} alt="SBI Logo" className="h-12" />
+              <span className="ml-2 text-xl font-semibold text-blue-900">General Insurance</span>
+            </div>
+          <button
+            onClick={() => navigate('/')}
+            className="px-4 py-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors bg-blue-50  flex items-center"
+          >
+            <FiHome className="mr-2 text-2xl" />
+            Home
+          </button>
         </div>
       </div>
 
